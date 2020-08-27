@@ -41,6 +41,18 @@ class HomeScreen extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
+            SizedBox(
+              height: 20,
+            ),
+            FlatButton(
+              child: Text("SignOut"),
+              textColor: Colors.white,
+              padding: EdgeInsets.all(16),
+              onPressed: () {
+                //code for sign in
+              },
+              color: Colors.blue,
+            ),
           ],
         ),
       ),

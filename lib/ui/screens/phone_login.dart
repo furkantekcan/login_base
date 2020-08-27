@@ -15,6 +15,11 @@ class PhoneLoginScreen extends StatefulWidget {
 
 class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   final _phoneController = TextEditingController();
+  TextEditingController _codeController;
+
+  String mobile, verificationId, smsCode;
+
+  bool codeSent = false;
 
   Future registerUser(String mobile, BuildContext context) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
@@ -23,17 +28,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       verificationCompleted: (PhoneAuthCredential credential) async {
         await _auth.signInWithCredential(credential);
       },
-      verificationFailed: (FirebaseAuthException e) {
-        if (e.code == 'invalid-phone-number') {
+      verificationFailed: (FirebaseAuthException authException) {
+        if (authException.code == 'invalid-phone-number') {
           print('The provided phone number is not valid.');
         }
       },
       codeSent: (String verificationId, int resendToken) async {
         // Update the UI - wait for the user to enter the SMS code
-
-        TextEditingController _codeController;
-
-        String smsCode = 'xxxx';
 
         showDialog(
             context: context,
@@ -55,50 +56,33 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                       textColor: Colors.white,
                       color: Colors.redAccent,
                       onPressed: () {
-                        FirebaseAuth auth = FirebaseAuth.instance;
-
                         smsCode = _codeController.toString();
-
-                        AuthCredential credential =
+                        PhoneAuthCredential phoneAuthCredential =
                             PhoneAuthProvider.credential(
                                 verificationId: verificationId,
                                 smsCode: smsCode);
-                        auth
-                            .signInWithCredential(credential)
+                        _auth
+                            .signInWithCredential(phoneAuthCredential)
                             .then((UserCredential result) {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => HomeScreen(
+                                        title: 'Home',
                                         user: result.user,
                                       )));
                         }).catchError((e) {
                           print(e);
+                          Navigator.pop(context);
                         });
-/*
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen(
-                                      user: auth.currentUser,
-                                      title: 'Home',
-                                    )));
-
-*/
                       },
                     )
                   ],
                 ));
-        // Create a PhoneAuthCredential with the code
-        PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
-            verificationId: verificationId, smsCode: smsCode);
-
-        // Sign the user in (or link) with the credential
-        await _auth.signInWithCredential(phoneAuthCredential);
       },
       codeAutoRetrievalTimeout: (String verificationId) {
         verificationId = verificationId;
-        print(verificationId);
+        print('verificationId:' + verificationId);
         print("Timout");
       },
     );
