@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   width: double.infinity,
                   child: FlatButton(
-                    child: Text("Login"),
+                    child: Text("Phone Login"),
                     textColor: Colors.white,
                     padding: EdgeInsets.all(16),
                     onPressed: () {

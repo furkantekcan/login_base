@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:login_base/ui/screens/home.dart';
 //import 'package:login_base/ui/screens/verify.dart';
 
@@ -16,34 +16,92 @@ class PhoneLoginScreen extends StatefulWidget {
 class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   final _phoneController = TextEditingController();
 
-  final _passController = TextEditingController();
-
-  Future initializeApp() async {
-    await Firebase.initializeApp();
-    FutureBuilder(
-      // Initialize FlutterFire
-      future: Firebase.initializeApp(),
-      builder: (context, snapshot) {
-        // Check for errors
-        if (snapshot.hasError) {
-          print('Somthing gone wrong');
-        }
-
-        // Once complete, show your application
-        if (snapshot.connectionState == ConnectionState.done) {
-          return HomeScreen(
-            title: 'Home',
-          );
-        }
-
-        // Otherwise, show something whilst waiting for initialization to complete
-        return Loading();
-      },
-    );
-  }
-
   Future registerUser(String mobile, BuildContext context) async {
     FirebaseAuth _auth = FirebaseAuth.instance;
+    _auth.verifyPhoneNumber(
+      phoneNumber: mobile,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await _auth.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        if (e.code == 'invalid-phone-number') {
+          print('The provided phone number is not valid.');
+        }
+      },
+      codeSent: (String verificationId, int resendToken) async {
+        // Update the UI - wait for the user to enter the SMS code
+
+        TextEditingController _codeController;
+
+        String smsCode = 'xxxx';
+
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+                  title: Text('Enter SMS code'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        controller: _codeController,
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Done"),
+                      textColor: Colors.white,
+                      color: Colors.redAccent,
+                      onPressed: () {
+                        FirebaseAuth auth = FirebaseAuth.instance;
+
+                        smsCode = _codeController.toString();
+
+                        AuthCredential credential =
+                            PhoneAuthProvider.credential(
+                                verificationId: verificationId,
+                                smsCode: smsCode);
+                        auth
+                            .signInWithCredential(credential)
+                            .then((UserCredential result) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeScreen(
+                                        user: result.user,
+                                      )));
+                        }).catchError((e) {
+                          print(e);
+                        });
+/*
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen(
+                                      user: auth.currentUser,
+                                      title: 'Home',
+                                    )));
+
+*/
+                      },
+                    )
+                  ],
+                ));
+        // Create a PhoneAuthCredential with the code
+        PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+            verificationId: verificationId, smsCode: smsCode);
+
+        // Sign the user in (or link) with the credential
+        await _auth.signInWithCredential(phoneAuthCredential);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        verificationId = verificationId;
+        print(verificationId);
+        print("Timout");
+      },
+    );
   }
 
   @override
@@ -80,6 +138,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   height: 16,
                 ),
                 TextFormField(
+                  keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -95,19 +154,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 SizedBox(
                   height: 16,
                 ),
-                TextFormField(
-                  decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide(color: Colors.grey[200])),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          borderSide: BorderSide(color: Colors.grey[300])),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      hintText: "Password"),
-                  controller: _passController,
-                ),
                 SizedBox(
                   height: 16,
                 ),
@@ -118,17 +164,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                     textColor: Colors.white,
                     padding: EdgeInsets.all(16),
                     onPressed: () {
-                      /*
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen(
-                                  title: 'Home',
-                                )),
-                      );
-
-                      */
-
+                      //code for sign in
                       final mobile = _phoneController.text.trim();
                       registerUser(mobile, context);
                     },

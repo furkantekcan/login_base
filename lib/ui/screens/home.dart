@@ -36,7 +36,7 @@ class HomeScreen extends StatelessWidget {
               height: 16,
             ),
             Text(
-              "${user.phoneNumber}",
+              "You logged in with : " + user.phoneNumber.toString(),
               style: TextStyle(
                 color: Colors.grey,
               ),
