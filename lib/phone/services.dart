@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:login_base/ui/screens/login_page.dart';
 import 'package:login_base/ui/screens/phone_login.dart';
@@ -16,8 +15,10 @@ class AuthService {
               title: 'Home Screen',
             );
           } else {
-            //return PhoneLoginScreen();
-            return LoginScreen(title: 'Login');
+            //return LoginScreen(title: 'Login');
+            return PhoneLoginScreen(
+              title: 'Phone Auth',
+            );
           }
         });
   }

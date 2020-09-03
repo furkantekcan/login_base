@@ -20,6 +20,17 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Container(
+            padding: const EdgeInsets.all(50.0),
+            child: Text(widget.title,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline4
+                    .apply(color: Colors.lightBlue))),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Form(
           key: formKey,
           child: Column(
@@ -49,11 +60,16 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                         },
                       ))
                   : Container(),
+              SizedBox(
+                height: 20,
+              ),
               Padding(
                   padding: EdgeInsets.only(left: 25.0, right: 25.0),
-                  child: RaisedButton(
-                      child: Center(
-                          child: codeSent ? Text('Login') : Text('Verify')),
+                  child: FlatButton(
+                      child: codeSent ? Text('Login') : Text('Verify'),
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      padding: EdgeInsets.all(16),
                       onPressed: () {
                         codeSent
                             ? AuthService()
