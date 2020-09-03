@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:login_base/phone/services.dart';
 import 'package:login_base/ui/screens/home.dart';
 import 'package:login_base/ui/screens/loading.dart';
 import 'package:login_base/ui/screens/login_page.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.blue,
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
-            home: LoginScreen(title: 'Login'),
+            home: AuthService().handleAuth(),
           );
         }
 

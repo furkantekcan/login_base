@@ -1,17 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:login_base/phone/services.dart';
 
 class HomeScreen extends StatelessWidget {
-  final User user;
   final String title;
-  HomeScreen({this.user, this.title});
+  HomeScreen({this.title});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
-        iconTheme: Theme.of(context).iconTheme,
         title: Container(
             padding: const EdgeInsets.all(25.0),
             child: Text(title,
@@ -36,7 +33,7 @@ class HomeScreen extends StatelessWidget {
               height: 16,
             ),
             Text(
-              "You logged in with : " + user.phoneNumber.toString(),
+              "You logged in with : ",
               style: TextStyle(
                 color: Colors.grey,
               ),
@@ -49,7 +46,8 @@ class HomeScreen extends StatelessWidget {
               textColor: Colors.white,
               padding: EdgeInsets.all(16),
               onPressed: () {
-                //code for sign in
+                //code for sign out
+                AuthService().signOut();
               },
               color: Colors.blue,
             ),
